@@ -7,31 +7,31 @@ This meta-architecture defines a system for building complex applications from r
 ## Key Concepts
 
 ### Module
-A **Module** is a logical grouping of related components that together provide a cohesive business capability. Modules are the primary unit of functional organization and represent a complete feature or service area.
+A **Module** is a logical grouping of related Components that together provide a cohesive business capability. Modules are the primary unit of functional organization and represent a complete feature or service area.
 
 **Characteristics:**
 - Contains one Primary Component and zero or more Interface and Integration Components
-- Has a unified version representing a compatible set of component versions
+- Has a unified version representing a compatible set of Component versions
 - Owned by a single team
 - Provides specific business capabilities
-- Defines contracts for interaction with other modules
+- Defines contracts for interaction with other Modules
 
 **Examples:** user-management, order-processing, payment-system, notification-service
 
 ### Component
-A **Component** is an independently deployable unit with its own repository, lifecycle, and version. Components are the atomic building blocks that implement specific aspects of a module's functionality.
+A **Component** is an independently deployable unit with its own repository, lifecycle, and version. Components are the atomic building blocks that implement specific aspects of a Module's functionality.
 
 **Characteristics:**
 - Lives in its own repository
 - Has independent versioning
 - Can be deployed separately
 - Contains its own deployment configurations
-- Declares dependencies on other components
+- Declares dependencies on other Components
 
 ### Component Classifications
 
 #### Primary Component
-The core implementation of a module's business logic or infrastructure provision. Every module must have exactly one Primary Component.
+The core implementation of a Module's business logic or infrastructure provision. Every Module must have exactly one Primary Component.
 
 **Types:**
 - **Service Primary**: Microservices containing business logic
@@ -58,16 +58,16 @@ Components that handle communication with external systems or implement protocol
 - **ETL Components**: Data pipeline and transformation services
 
 ### Application
-An **Application** is a deployable product composed of specific versions of modules. Applications define which modules and components are deployed together to create a complete system.
+An **Application** is a deployable product composed of specific versions of Modules. Applications define which Modules and Components are deployed together to create a complete system.
 
 **Characteristics:**
-- Selects specific module versions
-- Can include subset of available components
+- Selects specific Module versions
+- Can include subset of available Components
 - Defines environment-specific configurations
 - Represents a deployable product or system
 
 ### Module Registry
-The **Module Registry** is a centralized catalog of all modules, their components, versions, and relationships. It serves as the source of truth for module discovery and dependency management.
+The **Module Registry** is a centralized catalog of all Modules, their Components, versions, and relationships. It serves as the source of truth for Module discovery and dependency management.
 
 **Contains:**
 - Module definitions and metadata
@@ -78,7 +78,7 @@ The **Module Registry** is a centralized catalog of all modules, their component
 - Compatibility matrices
 
 ### Module Contract
-A **Module Contract** defines the interfaces a module provides and requires. Contracts enable loose coupling between modules.
+A **Module Contract** defines the interfaces a Module provides and requires. Contracts enable loose coupling between Modules.
 
 **Elements:**
 - API specifications (OpenAPI, gRPC proto, GraphQL schema)
@@ -87,10 +87,10 @@ A **Module Contract** defines the interfaces a module provides and requires. Con
 - Service level agreements (SLAs)
 
 ### Environment
-An **Environment** represents a deployment target (development, staging, production) with specific configuration and component selections.
+An **Environment** represents a deployment target (development, staging, production) with specific configuration and Component selections.
 
 **Characteristics:**
-- Selects which components to deploy
+- Selects which Components to deploy
 - Provides environment-specific configuration
 - Defines resource allocations
 - Sets scaling parameters
@@ -103,21 +103,21 @@ Components use semantic versioning (MAJOR.MINOR.PATCH):
 - **MINOR**: New features, backward compatible
 - **PATCH**: Bug fixes, no interface changes
 
-Each component maintains its own version independently.
+Each Component maintains its own version independently.
 
 ### Module Versioning
-Modules use semantic versioning to indicate compatible sets of components:
-- **MAJOR**: Breaking changes to module contracts or major architectural changes
-- **MINOR**: New components added or significant features across components
-- **PATCH**: Updates to component versions within compatibility range
+Modules use semantic versioning to indicate compatible sets of Components:
+- **MAJOR**: Breaking changes to Module contracts or major architectural changes
+- **MINOR**: New Components added or significant features across Components
+- **PATCH**: Updates to Component versions within compatibility range
 
-A module version represents a tested, compatible combination of component versions.
+A Module version represents a tested, compatible combination of Component versions.
 
 ### Version Compatibility
-- Module versions define compatibility ranges for their components
+- Module versions define compatibility ranges for their Components
 - Components declare their dependencies using version constraints
 - The Module Registry maintains compatibility matrices
-- Applications pin specific module versions for stability
+- Applications pin specific Module versions for stability
 
 ## Relationship Model
 
@@ -192,12 +192,12 @@ graph TB
 
 ## Architectural Benefits
 
-1. **Clear Separation of Concerns**: Each component has a specific, well-defined purpose
-2. **Independent Development**: Teams can work on components without coordinating every change
-3. **Flexible Composition**: Applications can include only the components they need
-4. **Technology Diversity**: Each component can use the most appropriate technology stack
-5. **Versioning Clarity**: Both fine-grained (component) and coarse-grained (module) version control
-6. **Scalable Organization**: Architecture supports growth from tens to hundreds of modules
-7. **Explicit Dependencies**: All relationships between components are declared and versioned
+1. **Clear Separation of Concerns**: Each Component has a specific, well-defined purpose
+2. **Independent Development**: Teams can work on Components without coordinating every change
+3. **Flexible Composition**: Applications can include only the Components they need
+4. **Technology Diversity**: Each Component can use the most appropriate technology stack
+5. **Versioning Clarity**: Both fine-grained (Component) and coarse-grained (Module) version control
+6. **Scalable Organization**: Architecture supports growth from tens to hundreds of Modules
+7. **Explicit Dependencies**: All relationships between Components are declared and versioned
 
 This meta-architecture provides a foundation for building complex systems while maintaining clarity, flexibility, and operational independence at scale.
