@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://liquid-labs.com/schemas/modules/v1/module.schema.json",
+  "title": "Module Definition",
+  "description": "Schema for Module definition files",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "components"],
+  "additionalProperties": false,
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "const": "modules.liquid-labs.com/v1",
+      "description": "API version for Module definitions"
+    },
+    "kind": {
+      "type": "string",
+      "const": "Module",
+      "description": "Resource type"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["name", "version", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "../shared-definitions.schema.json#/$defs/identifier"
+        },
+        "version": {
+          "$ref": "../shared-definitions.schema.json#/$defs/semver"
+        },
+        "description": {
+          "$ref": "../shared-definitions.schema.json#/$defs/description"
+        },
+        "team": {
+          "$ref": "../shared-definitions.schema.json#/$defs/identifier"
+        },
+        "maintainers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "../shared-definitions.schema.json#/$defs/maintainer"
+          }
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "service": {
+          "$ref": "#/$defs/componentList"
+        },
+        "infrastructure": {
+          "$ref": "#/$defs/componentList"
+        },
+        "interfaces": {
+          "$ref": "#/$defs/componentList"
+        },
+        "integrations": {
+          "$ref": "#/$defs/componentList"
+        }
+      }
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/moduleContract"
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/moduleDependency"
+      }
+    },
+    "compliance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dataClassification": {
+          "$ref": "../shared-definitions.schema.json#/$defs/dataClassification"
+        },
+        "regulations": {
+          "type": "array",
+          "items": {
+            "$ref": "../shared-definitions.schema.json#/$defs/regulation"
+          }
+        },
+        "auditLogging": {
+          "type": "string",
+          "enum": ["required", "optional", "none"],
+          "default": "optional"
+        },
+        "encryptionAtRest": {
+          "type": "boolean",
+          "default": false
+        },
+        "encryptionInTransit": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "notes": {
+          "type": "string",
+          "description": "Version compatibility and migration notes"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "componentList": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "repository", "version", "description", "required"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "$ref": "../shared-definitions.schema.json#/$defs/identifier"
+          },
+          "repository": {
+            "$ref": "../shared-definitions.schema.json#/$defs/repositoryUrl"
+          },
+          "version": {
+            "$ref": "../shared-definitions.schema.json#/$defs/semverWithV"
+          },
+          "description": {
+            "$ref": "../shared-definitions.schema.json#/$defs/description"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "moduleContract": {
+      "type": "object",
+      "required": ["name", "type", "version", "component"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "../shared-definitions.schema.json#/$defs/identifier"
+        },
+        "type": {
+          "$ref": "../shared-definitions.schema.json#/$defs/contractType"
+        },
+        "version": {
+          "$ref": "../shared-definitions.schema.json#/$defs/contractVersion"
+        },
+        "component": {
+          "$ref": "../shared-definitions.schema.json#/$defs/identifier"
+        }
+      }
+    },
+    "moduleDependency": {
+      "type": "object",
+      "required": ["module", "version", "purpose"],
+      "additionalProperties": false,
+      "properties": {
+        "module": {
+          "$ref": "../shared-definitions.schema.json#/$defs/identifier"
+        },
+        "version": {
+          "type": "string",
+          "description": "Semantic version range"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 100
+        }
+      }
+    }
+  }
+}
