@@ -1,0 +1,684 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://liquid-labs.com/schemas/shared-definitions.schema.json",
+  "title": "Shared Definitions",
+  "description": "Common definitions used across Module and Component schemas",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "minLength": 3,
+      "maxLength": 63,
+      "description": "Lowercase alphanumeric identifier with hyphens"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "Semantic version (e.g., 1.2.3, 2.0.0-alpha.1)"
+    },
+    "semverWithV": {
+      "type": "string",
+      "pattern": "^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "Semantic version with optional 'v' prefix (e.g., v1.2.3, 2.0.0)"
+    },
+    "contractVersion": {
+      "type": "string",
+      "pattern": "^v[1-9]\\d*$",
+      "description": "Contract version (e.g., v1, v2, v10)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["prototype", "alpha", "beta", "rc", "stable"],
+      "description": "Maturity status"
+    },
+    "statusWithDeprecated": {
+      "type": "string",
+      "enum": ["prototype", "alpha", "beta", "rc", "stable", "deprecated"],
+      "description": "Maturity status including deprecated"
+    },
+    "repositoryUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://.*$",
+      "description": "HTTP(S) repository URL"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500,
+      "description": "Human-readable description"
+    },
+    "longDescription": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 1000,
+      "description": "Extended human-readable description"
+    },
+    "environmentVariable": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "description": "Environment variable name (uppercase with underscores)"
+    },
+    "languageWithVersion": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9+#-]*:(\\*|\\^?\\d+(\\.\\d+)?(\\.\\d+)?(-[a-zA-Z0-9-]+)?|>=\\d+(\\.\\d+)?(\\.\\d+)?|~\\d+(\\.\\d+)?(\\.\\d+)?)$",
+      "description": "Language with optional version constraint (e.g., 'java:17', 'python:>=3.8')"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email address"
+    },
+    "contractType": {
+      "type": "string",
+      "enum": [
+        "openapi-3.0",
+        "openapi-3.1",
+        "grpc-proto",
+        "graphql-schema",
+        "thrift-idl",
+        "kafka-avro",
+        "kafka-protobuf",
+        "kafka-json-schema",
+        "async-api-2.0",
+        "cloudevents-1.0",
+        "terraform-output",
+        "terraform-module",
+        "helm-chart",
+        "kubernetes-service",
+        "kubernetes-crd",
+        "postgres-connection",
+        "redis-connection",
+        "s3-bucket",
+        "mongodb-connection",
+        "micro-frontend",
+        "npm-package",
+        "web-components",
+        "cli-commands",
+        "homebrew-formula",
+        "docker-compose",
+        "k8s-namespace",
+        "vpc-config"
+      ],
+      "pattern": "^(custom:.+|[a-z][a-z0-9-]*(-[a-z0-9]+)*)$",
+      "description": "Contract type identifier"
+    },
+    "dataClassification": {
+      "type": "string",
+      "enum": ["public", "internal", "confidential", "pii"],
+      "description": "Data classification level"
+    },
+    "regulation": {
+      "type": "string",
+      "enum": ["gdpr", "ccpa", "hipaa", "sox", "pci-dss", "iso-27001"],
+      "description": "Regulatory compliance standard"
+    },
+    "maintainer": {
+      "type": "object",
+      "required": ["name", "email"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "email": {
+          "$ref": "#/$defs/email"
+        }
+      }
+    }
+  }
+}import zipfile
+import json
+from io import BytesIO
+
+# Create a BytesIO object to store the zip file in memory
+zip_buffer = BytesIO()
+
+# Define the schemas with their proper directory structure
+schemas = {
+    "shared-definitions.schema.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://liquid-labs.com/schemas/shared-definitions.schema.json",
+        "title": "Shared Definitions",
+        "description": "Common definitions used across Module and Component schemas",
+        "$defs": {
+            "identifier": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$",
+                "minLength": 3,
+                "maxLength": 63,
+                "description": "Lowercase alphanumeric identifier with hyphens"
+            },
+            "semver": {
+                "type": "string",
+                "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+                "description": "Semantic version (e.g., 1.2.3, 2.0.0-alpha.1)"
+            },
+            "semverWithV": {
+                "type": "string",
+                "pattern": "^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+                "description": "Semantic version with optional 'v' prefix (e.g., v1.2.3, 2.0.0)"
+            },
+            "contractVersion": {
+                "type": "string",
+                "pattern": "^v[1-9]\\d*$",
+                "description": "Contract version (e.g., v1, v2, v10)"
+            },
+            "status": {
+                "type": "string",
+                "enum": ["prototype", "alpha", "beta", "rc", "stable"],
+                "description": "Maturity status"
+            },
+            "statusWithDeprecated": {
+                "type": "string",
+                "enum": ["prototype", "alpha", "beta", "rc", "stable", "deprecated"],
+                "description": "Maturity status including deprecated"
+            },
+            "repositoryUrl": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https?://.*$",
+                "description": "HTTP(S) repository URL"
+            },
+            "description": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 500,
+                "description": "Human-readable description"
+            },
+            "longDescription": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 1000,
+                "description": "Extended human-readable description"
+            },
+            "environmentVariable": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$",
+                "description": "Environment variable name (uppercase with underscores)"
+            },
+            "languageWithVersion": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9+#-]*:(\\*|\\^?\\d+(\\.\\d+)?(\\.\\d+)?(-[a-zA-Z0-9-]+)?|>=\\d+(\\.\\d+)?(\\.\\d+)?|~\\d+(\\.\\d+)?(\\.\\d+)?)$",
+                "description": "Language with optional version constraint (e.g., 'java:17', 'python:>=3.8')"
+            },
+            "email": {
+                "type": "string",
+                "format": "email",
+                "description": "Email address"
+            },
+            "contractType": {
+                "type": "string",
+                "enum": [
+                    "openapi-3.0",
+                    "openapi-3.1",
+                    "grpc-proto",
+                    "graphql-schema",
+                    "thrift-idl",
+                    "kafka-avro",
+                    "kafka-protobuf",
+                    "kafka-json-schema",
+                    "async-api-2.0",
+                    "cloudevents-1.0",
+                    "terraform-output",
+                    "terraform-module",
+                    "helm-chart",
+                    "kubernetes-service",
+                    "kubernetes-crd",
+                    "postgres-connection",
+                    "redis-connection",
+                    "s3-bucket",
+                    "mongodb-connection",
+                    "micro-frontend",
+                    "npm-package",
+                    "web-components",
+                    "cli-commands",
+                    "homebrew-formula",
+                    "docker-compose",
+                    "k8s-namespace",
+                    "vpc-config"
+                ],
+                "pattern": "^(custom:.+|[a-z][a-z0-9-]*(-[a-z0-9]+)*)$",
+                "description": "Contract type identifier"
+            },
+            "dataClassification": {
+                "type": "string",
+                "enum": ["public", "internal", "confidential", "pii"],
+                "description": "Data classification level"
+            },
+            "regulation": {
+                "type": "string",
+                "enum": ["gdpr", "ccpa", "hipaa", "sox", "pci-dss", "iso-27001"],
+                "description": "Regulatory compliance standard"
+            },
+            "maintainer": {
+                "type": "object",
+                "required": ["name", "email"],
+                "additionalProperties": False,
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 100
+                    },
+                    "email": {
+                        "$ref": "#/$defs/email"
+                    }
+                }
+            }
+        }
+    },
+    "modules/v1/module.schema.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://liquid-labs.com/schemas/modules/v1/module.schema.json",
+        "title": "Module Definition",
+        "description": "Schema for Module definition files",
+        "type": "object",
+        "required": ["apiVersion", "kind", "metadata", "components"],
+        "additionalProperties": False,
+        "properties": {
+            "apiVersion": {
+                "type": "string",
+                "const": "modules.liquid-labs.com/v1",
+                "description": "API version for Module definitions"
+            },
+            "kind": {
+                "type": "string",
+                "const": "Module",
+                "description": "Resource type"
+            },
+            "metadata": {
+                "type": "object",
+                "required": ["name", "version", "description"],
+                "additionalProperties": False,
+                "properties": {
+                    "name": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    },
+                    "version": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/semver"
+                    },
+                    "description": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/description"
+                    },
+                    "team": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    },
+                    "maintainers": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/maintainer"
+                        }
+                    }
+                }
+            },
+            "components": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "service": {
+                        "$ref": "#/$defs/componentList"
+                    },
+                    "infrastructure": {
+                        "$ref": "#/$defs/componentList"
+                    },
+                    "interfaces": {
+                        "$ref": "#/$defs/componentList"
+                    },
+                    "integrations": {
+                        "$ref": "#/$defs/componentList"
+                    }
+                }
+            },
+            "contracts": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/$defs/moduleContract"
+                }
+            },
+            "dependencies": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/$defs/moduleDependency"
+                }
+            },
+            "compliance": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "dataClassification": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/dataClassification"
+                    },
+                    "regulations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/regulation"
+                        }
+                    },
+                    "auditLogging": {
+                        "type": "string",
+                        "enum": ["required", "optional", "none"],
+                        "default": "optional"
+                    },
+                    "encryptionAtRest": {
+                        "type": "boolean",
+                        "default": False
+                    },
+                    "encryptionInTransit": {
+                        "type": "boolean",
+                        "default": True
+                    }
+                }
+            },
+            "compatibility": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "notes": {
+                        "type": "string",
+                        "description": "Version compatibility and migration notes"
+                    }
+                }
+            }
+        },
+        "$defs": {
+            "componentList": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["name", "repository", "version", "description", "required"],
+                    "additionalProperties": False,
+                    "properties": {
+                        "name": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                        },
+                        "repository": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/repositoryUrl"
+                        },
+                        "version": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/semverWithV"
+                        },
+                        "description": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/description"
+                        },
+                        "required": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "moduleContract": {
+                "type": "object",
+                "required": ["name", "type", "version", "component"],
+                "additionalProperties": False,
+                "properties": {
+                    "name": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    },
+                    "type": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/contractType"
+                    },
+                    "version": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/contractVersion"
+                    },
+                    "component": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    }
+                }
+            },
+            "moduleDependency": {
+                "type": "object",
+                "required": ["module", "version", "purpose"],
+                "additionalProperties": False,
+                "properties": {
+                    "module": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Semantic version range"
+                    },
+                    "purpose": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 100
+                    }
+                }
+            }
+        }
+    },
+    "components/v1/component.schema.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://liquid-labs.com/schemas/components/v1/component.schema.json",
+        "title": "Component Definition",
+        "description": "Schema for all Component types",
+        "type": "object",
+        "required": ["apiVersion", "kind", "metadata", "contracts", "dependencies", "configuration"],
+        "additionalProperties": False,
+        "properties": {
+            "apiVersion": {
+                "type": "string",
+                "const": "components.liquid-labs.com/v1",
+                "description": "API version for Component definitions"
+            },
+            "kind": {
+                "type": "string",
+                "enum": ["ServiceComponent", "InfrastructureComponent", "InterfaceComponent", "IntegrationComponent"],
+                "description": "Component type"
+            },
+            "metadata": {
+                "type": "object",
+                "required": ["name", "module", "moduleRegistry", "repository", "version", "description", "status", "languages"],
+                "additionalProperties": False,
+                "properties": {
+                    "name": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    },
+                    "module": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    },
+                    "moduleRegistry": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/repositoryUrl"
+                    },
+                    "repository": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/repositoryUrl"
+                    },
+                    "version": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/semver"
+                    },
+                    "description": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/description"
+                    },
+                    "status": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/status"
+                    },
+                    "languages": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/languageWithVersion"
+                        }
+                    }
+                }
+            },
+            "contracts": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/$defs/componentContract"
+                },
+                "description": "Contracts this Component provides"
+            },
+            "dependencies": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/$defs/componentDependency"
+                },
+                "description": "Dependencies on other Modules"
+            },
+            "configuration": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "required": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/environmentVariable"
+                        }
+                    },
+                    "optional": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/environmentVariable"
+                        }
+                    }
+                },
+                "description": "Configuration requirements"
+            }
+        },
+        "$defs": {
+            "componentContract": {
+                "type": "object",
+                "required": ["name", "type", "version"],
+                "additionalProperties": False,
+                "properties": {
+                    "name": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    },
+                    "type": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/contractType"
+                    },
+                    "version": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/contractVersion"
+                    },
+                    "spec": {
+                        "type": "string",
+                        "description": "Path to specification file or directory"
+                    },
+                    "description": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/longDescription"
+                    },
+                    "status": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/statusWithDeprecated"
+                    }
+                }
+            },
+            "componentDependency": {
+                "type": "object",
+                "required": ["module", "contract"],
+                "additionalProperties": False,
+                "properties": {
+                    "module": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    },
+                    "component": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Semantic version range for the Module"
+                    },
+                    "contract": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                    },
+                    "optional": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "Whether this dependency is optional"
+                    }
+                }
+            }
+        }
+    },
+    "registry/v1/module-registry.schema.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://liquid-labs.com/schemas/registry/v1/module-registry.schema.json",
+        "title": "Module Registry",
+        "description": "Schema for the Module Registry index file",
+        "type": "object",
+        "required": ["apiVersion", "kind", "metadata", "modules"],
+        "additionalProperties": False,
+        "properties": {
+            "apiVersion": {
+                "type": "string",
+                "const": "registry.liquid-labs.com/v1"
+            },
+            "kind": {
+                "type": "string",
+                "const": "ModuleRegistry"
+            },
+            "metadata": {
+                "type": "object",
+                "required": ["version", "generated"],
+                "additionalProperties": False,
+                "properties": {
+                    "version": {
+                        "$ref": "../../shared-definitions.schema.json#/$defs/semver"
+                    },
+                    "generated": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When this registry was generated"
+                    }
+                }
+            },
+            "modules": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["name", "latestVersion", "availableVersions", "supportedVersions", "description"],
+                    "additionalProperties": False,
+                    "properties": {
+                        "name": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/identifier"
+                        },
+                        "latestVersion": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/semver"
+                        },
+                        "availableVersions": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "../../shared-definitions.schema.json#/$defs/semver"
+                            }
+                        },
+                        "supportedVersions": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "../../shared-definitions.schema.json#/$defs/semver"
+                            }
+                        },
+                        "description": {
+                            "$ref": "../../shared-definitions.schema.json#/$defs/description"
+                        }
+                    }
+                }
+            },
+            "summary": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "totalModules": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "totalComponents": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                }
+            }
+        }
+    }
+}
+
+# Create the zip file
+with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+    # Add README
+    readme_content = """# Liquid Labs Module System JSON Schemas
+
+
+
+## Directory Structure

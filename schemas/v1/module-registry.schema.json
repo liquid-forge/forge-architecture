@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://liquid-labs.com/schemas/registry/v1/module-registry.schema.json",
+  "title": "Module Registry",
+  "description": "Schema for the Module Registry index file",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "modules"],
+  "additionalProperties": false,
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "const": "registry.liquid-labs.com/v1"
+    },
+    "kind": {
+      "type": "string",
+      "const": "ModuleRegistry"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["version", "generated"],
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "$ref": "../shared-definitions.schema.json#/$defs/semver"
+        },
+        "generated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this registry was generated"
+        }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "latestVersion", "availableVersions", "supportedVersions", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "$ref": "../shared-definitions.schema.json#/$defs/identifier"
+          },
+          "latestVersion": {
+            "$ref": "../shared-definitions.schema.json#/$defs/semver"
+          },
+          "availableVersions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "../shared-definitions.schema.json#/$defs/semver"
+            }
+          },
+          "supportedVersions": {
+            "type": "array",
+            "items": {
+              "$ref": "../shared-definitions.schema.json#/$defs/semver"
+            }
+          },
+          "description": {
+            "$ref": "../shared-definitions.schema.json#/$defs/description"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "totalModules": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalComponents": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}
