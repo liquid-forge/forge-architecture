@@ -7,13 +7,16 @@ This meta-architecture defines a system for building complex applications from r
 ## Key Concepts
 
 ### Module
-A **Module** is a logical grouping of related Components that together provide a cohesive business capability. Modules are the primary unit of functional organization and represent a complete feature or service area.
+A **Module** is a logical grouping of related Components that together provide a cohesive business capability. Modules are the primary unit of functional organization and represent a complete feature or service domaain.
 
 **Characteristics:**
-- Contains one Primary Component and zero or more Interface and Integration Components
+- A module may encompass:
+  - one ore more Primary Service and/or Infrastructure Components,
+  - additional optianl Service and Infrastructure Components, and
+  - zero or more Interface and Integration Components.
 - Has a unified version representing a compatible set of Component versions
-- Owned by a single team
-- Provides specific business capabilities
+- All components collectecively managed.
+- Provides specific domain/business capabilities.
 - Defines contracts for interaction with other Modules
 
 **Examples:** user-management, order-processing, payment-system, notification-service
@@ -22,20 +25,20 @@ A **Module** is a logical grouping of related Components that together provide a
 A **Component** is an independently deployable unit with its own repository, lifecycle, and version. Components are the atomic building blocks that implement specific aspects of a Module's functionality.
 
 **Characteristics:**
-- Lives in its own repository
-- Has independent versioning
-- Can be deployed separately
-- Contains its own deployment configurations
-- Declares dependencies on other Components
+- Lives in its own repository.
+- Has independent versioning.
+- Can be deployed separately.
+- Contains its own deployment configurations.
+- Declares dependencies on other Components.
 
 ### Component Classifications
 
 #### Primary Component
-The core implementation of a Module's business logic or infrastructure provision. Every Module must have exactly one Primary Component.
+The core implementation of a Module's business logic or infrastructure provision. Every Module has exactly at least one Primary Component. The all non-primary components are dependent on the primary components.
 
 **Types:**
-- **Service Primary**: Microservices containing business logic
-- **Infrastructure Primary**: Terraform/IaC defining cloud resources
+- **Service Component**: Microservices containing business logic
+- **Infrastructure Component**: Terraform/IaC defining cloud resources
 
 #### Interface Component
 Components that provide ways for external actors (users, systems, developers) to interact with the Primary Component.
@@ -61,10 +64,10 @@ Components that handle communication with external systems or implement protocol
 An **Application** is a deployable product composed of specific versions of Modules. Applications define which Modules and Components are deployed together to create a complete system.
 
 **Characteristics:**
-- Selects specific Module versions
-- Can include subset of available Components
-- Defines environment-specific configurations
-- Represents a deployable product or system
+- Selects specific Module versions.
+- Can include subset of available Components.
+- Defines environment-specific configurations.
+- Represents a deployable product or system.
 
 ### Module Registry
 The **Module Registry** is a centralized catalog of all Modules, their Components, versions, and relationships. It serves as the source of truth for Module discovery and dependency management.
@@ -181,13 +184,13 @@ graph TB
     ENV1 -->|deploys| APP1
     ENV2 -->|deploys| APP2
     
-    style MR fill:#f9f,stroke:#333,stroke-width:4px
-    style M1 fill:#bbf,stroke:#333,stroke-width:2px
-    style M2 fill:#bbf,stroke:#333,stroke-width:2px
-    style PC1 fill:#bfb,stroke:#333,stroke-width:2px
-    style PC2 fill:#bfb,stroke:#333,stroke-width:2px
-    style APP1 fill:#fbf,stroke:#333,stroke-width:2px
-    style ENV1 fill:#ffb,stroke:#333,stroke-width:2px
+    style MR color:#000,fill:#f9f,stroke:#333,stroke-width:4px
+    style M1 color:#000,fill:#bbf,stroke:#333,stroke-width:2px
+    style M2 color:#000,fill:#bbf,stroke:#333,stroke-width:2px
+    style PC1 color:#000,fill:#bfb,stroke:#333,stroke-width:2px
+    style PC2 color:#000,fill:#bfb,stroke:#333,stroke-width:2px
+    style APP1 color:#000,fill:#fbf,stroke:#333,stroke-width:2px
+    style ENV1 color:#000,fill:#ffb,stroke:#333,stroke-width:2px
 ```
 
 ## Architectural Benefits
